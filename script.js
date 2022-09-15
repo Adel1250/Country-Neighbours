@@ -35,7 +35,8 @@ const getCountryAndNeighbour = function (name) {
                         renderCountry(data[0], "neighbour");
                     });
             }
-        });
+        })
+        .catch(err => alert("Connection Lost"));
 }
 
 const countryName = prompt("Enter the country's name")

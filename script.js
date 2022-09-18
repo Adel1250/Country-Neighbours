@@ -2,7 +2,7 @@
 
 const countriesContainer = document.querySelector('.countries');
 
-const renderCountry = function (data, className) {
+const renderCountry = function (data, className="") {
     const html = `
         <article class="country ${className}">
             <img class="country__img" src="${data.flags.png}" />

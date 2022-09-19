@@ -2,7 +2,7 @@
 
 const countriesContainer = document.querySelector('.countries');
 
-const renderCountry = function (data, className="") {
+const renderCountry = function (data, className) {
     const html = `
         <article class="country ${className}">
             <img class="country__img" src="${data.flags.png}" />
@@ -25,38 +25,26 @@ const renderError = function (err) {
     countriesContainer.style.opacity = 1;
 }
 
-const getJSON = function (url, error) {
-    return fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`${error} ${response.status}`);
-            }
-            return response.json();
-        });
-}
-
-const getCountryAndNeighbour = function (name) {
-    getJSON(`https://restcountries.com/v3.1/name/${name}`, "Country not found!")
-        .then(data => {
-            renderCountry(data[0]);
-            const neighbours = data[0].borders;
-            if (!neighbours) {
-                throw new Error("No neighbouring countries!");
-                return;
-            }
-            return neighbours;
-        })
-        .then(neighbours => {
-            for (let i = 0; i < neighbours.length; i++) {
-                getJSON(`https://restcountries.com/v3.1/alpha/${neighbours[i]}`)
-                    .then(data => {
-                        renderCountry(data[0], "neighbour");
-                    });
-            }
-        })
-        .catch(err => {
-            renderError(err);
-        });
+const getCountryAndNeighbour = async function (name) {
+    try {
+        const response = await fetch(`https://restcountries.com/v3.1/name/${name}`);
+        if (!response.ok) {
+            throw new Error("Problem getting country!");
+        }
+        const data = await response.json();
+        renderCountry(data[0]);
+        const neighbours = data[0].borders;
+        if (!neighbours) {
+            throw new Error("You chose an Island!!");
+        }
+        for (let i = 0; i < neighbours.length; i++) {
+            const res = await fetch(`https://restcountries.com/v3.1/alpha/${neighbours[i]}`);
+            const dt = await res.json();
+            renderCountry(dt[0], "neighbour");
+        }
+    } catch (err) {
+        renderError(`${err}`);
+    }
 }
 
 const countryName = prompt("Enter the country's name")
